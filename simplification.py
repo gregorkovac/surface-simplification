@@ -1,4 +1,58 @@
 import matplotlib.pyplot as plt
+import numpy as np
+
+'''
+compute_Q(T) returns the fundamental quadratic matrix of the function E_H(x) used for error calculation.
+'''
+def compute_Q(T):
+    # TODO: Check if this is correct
+    Q = np.zeros((4, 4))
+
+    for t in T:
+        a, b, x = t[0], t[1], t[2]
+
+        v1 = np.array(b) - np.array(a)
+        v2 = np.array(x) - np.array(a)
+
+        normal = np.cross(v1, v2)
+        normal = normal / np.linalg.norm(normal)
+
+        offset = np.dot(normal, np.array(a))
+
+        u = np.array([normal[0], normal[1], offset])
+
+        Q += np.outer(u, u.T)
+
+    return Q
+
+'''
+compute_E_H(x) returns of the value of the E_H(x) function at point x = (x1, x2, x3). It also takes triangulation T as input.
+'''
+def compute_E_H(T, x):
+    # TODO: Check if this is correct
+    x1, x2, x3 = x[0], x[1], x[2]
+
+    Q = compute_Q(T)
+
+    A = Q[0, 0]
+    P = Q[0, 1]
+    q = Q[0, 2]
+    U = Q[0, 3]
+    B = Q[1, 1]
+    R = Q[1, 2]
+    V = Q[1, 3]
+    C = Q[2, 2]
+    W = Q[2, 3]
+    Z = Q[3, 3]
+
+    return A * x1 ** 2 + B * x2 ** 2 + C * x3 ** 2 + 2 * (P * x1 * x2 + Q * x1 * x3 + R * x2 * x3) + 2 * (U * x1 + V * x2 + W * x3) + Z
+
+'''
+error(T, e) returns the damage caused to the triangulation T by contracting the edge e = [(x1, y1), (x2, y2)].
+'''
+def error(T, e):
+    # TODO: Implement
+    pass
 
 '''
 vertex_link(T, v) returns the link of vertex v = (x, y) in the triangulation T.
