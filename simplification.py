@@ -10,19 +10,19 @@ def compute_Q(T):
     Q = np.zeros((4, 4))
 
     for t in T:
-        a, b, x = t[0], t[1], t[2]
+        a, b, c = np.array(t[0]), np.array(t[1]), np.array(t[2])
 
-        v1 = np.array(b) - np.array(a)
-        v2 = np.array(x) - np.array(a)
+        # v1 = np.array(b) - np.array(a)
+        # v2 = np.array(x) - np.array(a)
 
-        normal = np.cross(v1, v2)
+        normal = np.cross(b - a, c - a)
         normal = normal / np.linalg.norm(normal)
 
-        offset = np.dot(normal, np.array(a))
+        offset = -np.dot(normal, np.array(a))
 
         u = np.array([normal[0], normal[1], normal[2], offset])
 
-        Q += np.outer(u, u.T)
+        Q += np.outer(u, u)
 
     return Q
 
@@ -46,9 +46,12 @@ def compute_E_H(x, Q):
 
     return A * x1 ** 2 + B * x2 ** 2 + C * x3 ** 2 + 2 * (P * x1 * x2 + Q * x1 * x3 + R * x2 * x3) + 2 * (U * x1 + V * x2 + W * x3) + Z
 '''
-error(T, e) returns the damage caused to the triangulation T by contracting the edge.
+error(T, e) returns the damage caused to the triangulation T by contracting an edge using its quadric.
 '''
-def error(T, Q, e):
+def error(T, Q):
+
+    print(Q)
+
     c = np.linalg.solve(Q, np.zeros(4))
 
     error = compute_E_H(T, c)

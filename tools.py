@@ -75,3 +75,23 @@ def get_edges_and_vertices(T):
             V.append(t[2])
 
     return E, V
+
+def obj_to_triangulation(file_path):
+    with open(file_path) as f:
+        lines = f.readlines()
+
+    v_lines = [line for line in lines if line.startswith('v')]
+    f_lines = [line for line in lines if line.startswith('f')]
+
+    V = []
+    T = []
+
+    for line in v_lines:
+        v = tuple([float(x) for x in line.split()[1:]])
+        V.append(v)
+    
+    for line in f_lines:
+        t = [V[int(x) - 1] for x in line.split()[1:]]
+        T.append(t)
+
+    return T

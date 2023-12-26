@@ -2,9 +2,22 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 from simplification import compute_Q, compute_E_H, error, is_safe, contract_edge
-from tools import triangles_with_vertex, triangles_with_edge, get_edges_and_vertices
+from tools import triangles_with_vertex, triangles_with_edge, get_edges_and_vertices, obj_to_triangulation
 
 def main():
+
+    T = obj_to_triangulation('models/cube.obj')
+
+    fig = plt.figure()
+    ax = fig.add_subplot(111, projection='3d')
+
+    for t in T:
+        ax.plot([t[0][0], t[1][0]], [t[0][1], t[1][1]], [t[0][2], t[1][2]], 'k--')
+        ax.plot([t[1][0], t[2][0]], [t[1][1], t[2][1]], [t[1][2], t[2][2]], 'k--')
+        ax.plot([t[2][0], t[0][0]], [t[2][1], t[0][1]], [t[2][2], t[0][2]], 'k--')
+
+    plt.show()
+
    
     # T = [[(0, 0), (1, 0), (1, 1)], [(1, 0), (2, 0), (2, 1)], [(2, 0), (3, 0), (3, 1)], [(0, 0), (0, 1), (1, 1)], [(1, 0), (1, 1), (2, 1)], [(2, 0), (2, 1), (3, 1)]]
 
@@ -33,6 +46,11 @@ def main():
         for t in twv:
             q += Q[tuple(sorted(t))]
         Q[v] = q
+
+
+    #E.sort(key=lambda e: error(T, Q[tuple(sorted(e))]))
+
+    # print(E)
 
     # Q = compute_Q(T)
 
