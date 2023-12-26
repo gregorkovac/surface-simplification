@@ -1,4 +1,5 @@
 import numpy as np
+from scipy.optimize import minimize
 
 from tools import vertex_link, edge_link
 
@@ -11,9 +12,6 @@ def compute_Q(T):
 
     for t in T:
         a, b, c = np.array(t[0]), np.array(t[1]), np.array(t[2])
-
-        # v1 = np.array(b) - np.array(a)
-        # v2 = np.array(x) - np.array(a)
 
         normal = np.cross(b - a, c - a)
         normal = normal / np.linalg.norm(normal)
@@ -43,20 +41,26 @@ def compute_E_H(x, Q):
     C = Q[2, 2]
     W = Q[2, 3]
     Z = Q[3, 3]
-
-    return A * x1 ** 2 + B * x2 ** 2 + C * x3 ** 2 + 2 * (P * x1 * x2 + Q * x1 * x3 + R * x2 * x3) + 2 * (U * x1 + V * x2 + W * x3) + Z
+    
+    return A * x1 ** 2 + B * x2 ** 2 + C * x3 ** 2 + 2 * (P * x1 * x2 + q * x1 * x3 + R * x2 * x3) + 2 * (U * x1 + V * x2 + W * x3) + Z
 '''
 error(T, e) returns the damage caused to the triangulation T by contracting an edge using its quadric.
 '''
-def error(T, Q):
+def error(Q, e):
 
-    print(Q)
+    # print(Q)
 
-    c = np.linalg.solve(Q, np.zeros(4))
+    # c = np.linalg.solve(Q, np.ones(4))
 
-    error = compute_E_H(T, c)
+    a = np.array(e[0])
+    b = np.array(e[1])
 
-    return error
+    initial_guess = (a + b) / 2
+
+    c = minimize(compute_E_H, initial_guess, args=(Q)).x
+    e = compute_E_H(c, Q)
+
+    return e
 
 '''
 is_safe(T, e) returns True if it is safe to contract edge e in the 

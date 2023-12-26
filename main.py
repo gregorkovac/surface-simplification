@@ -6,24 +6,13 @@ from tools import triangles_with_vertex, triangles_with_edge, get_edges_and_vert
 
 def main():
 
-    T = obj_to_triangulation('models/cube.obj')
-
-    fig = plt.figure()
-    ax = fig.add_subplot(111, projection='3d')
-
-    for t in T:
-        ax.plot([t[0][0], t[1][0]], [t[0][1], t[1][1]], [t[0][2], t[1][2]], 'k--')
-        ax.plot([t[1][0], t[2][0]], [t[1][1], t[2][1]], [t[1][2], t[2][2]], 'k--')
-        ax.plot([t[2][0], t[0][0]], [t[2][1], t[0][1]], [t[2][2], t[0][2]], 'k--')
-
-    plt.show()
-
+    T = obj_to_triangulation('models/ico_sphere.obj')
    
     # T = [[(0, 0), (1, 0), (1, 1)], [(1, 0), (2, 0), (2, 1)], [(2, 0), (3, 0), (3, 1)], [(0, 0), (0, 1), (1, 1)], [(1, 0), (1, 1), (2, 1)], [(2, 0), (2, 1), (3, 1)]]
 
-    T = [[(0, 2), (2, 2), (1, 4)], [(0, 2), (2, 2), (1, 0)], [(0, 2), (1, 4), (0, 4)], [(2, 2), (1, 4), (2, 4)], [(0,2), (1,0), (0,0)], [(2,2),(2,0),(1,0)]]
+    # T = [[(0, 2), (2, 2), (1, 4)], [(0, 2), (2, 2), (1, 0)], [(0, 2), (1, 4), (0, 4)], [(2, 2), (1, 4), (2, 4)], [(0,2), (1,0), (0,0)], [(2,2),(2,0),(1,0)]]
     
-    T = [[(x, y, 0) for (x, y) in inner_list] for inner_list in T]
+    # T = [[(x, y, 0) for (x, y) in inner_list] for inner_list in T]
 
     E, V = get_edges_and_vertices(T)
 
@@ -47,8 +36,19 @@ def main():
             q += Q[tuple(sorted(t))]
         Q[v] = q
 
+    E.sort(key=lambda e: error(Q[tuple(sorted(e))], e))
 
-    #E.sort(key=lambda e: error(T, Q[tuple(sorted(e))]))
+    fig = plt.figure()
+    ax = fig.add_subplot(111, projection='3d')
+
+    for i, e in enumerate(E):
+        ax.plot([e[0][0], e[1][0]], [e[0][1], e[1][1]], [e[0][2], e[1][2]], 'k--')
+        err = error(Q[tuple(sorted(e))], e)
+        err = '{:.2e}'.format(err)
+        
+        ax.text((e[0][0] + e[1][0]) / 2, (e[0][1] + e[1][1]) / 2, (e[0][2] + e[1][2]) / 2, str(err))
+
+    plt.show()
 
     # print(E)
 
