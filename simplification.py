@@ -19,7 +19,7 @@ def compute_Q(T):
 
         offset = np.dot(normal, np.array(a))
 
-        u = np.array([normal[0], normal[1], offset])
+        u = np.array([normal[0], normal[1], normal[2], offset])
 
         Q += np.outer(u, u.T)
 
@@ -28,11 +28,9 @@ def compute_Q(T):
 '''
 compute_E_H(x) returns of the value of the E_H(x) function at point x = (x1, x2, x3). It also takes triangulation T as input.
 '''
-def compute_E_H(T, x):
+def compute_E_H(T, x, Q):
     # TODO: Check if this is correct
     x1, x2, x3 = x[0], x[1], x[2]
-
-    Q = compute_Q(T)
 
     A = Q[0, 0]
     P = Q[0, 1]
@@ -46,13 +44,15 @@ def compute_E_H(T, x):
     Z = Q[3, 3]
 
     return A * x1 ** 2 + B * x2 ** 2 + C * x3 ** 2 + 2 * (P * x1 * x2 + Q * x1 * x3 + R * x2 * x3) + 2 * (U * x1 + V * x2 + W * x3) + Z
-
 '''
 error(T, e) returns the damage caused to the triangulation T by contracting the edge e = [(x1, y1), (x2, y2)].
 '''
-def error(T, e):
-    # TODO: Implement
-    pass
+def error(T, Q, e):
+    c = np.linalg.solve(Q, np.zeros(4))
+
+    error = compute_E_H(T, c)
+
+    return error
 
 '''
 vertex_link(T, v) returns the link of vertex v = (x, y) in the triangulation T.
@@ -122,22 +122,40 @@ def main():
     # T = [[(0, 0), (1, 0), (1, 1)], [(1, 0), (2, 0), (2, 1)], [(2, 0), (3, 0), (3, 1)], [(0, 0), (0, 1), (1, 1)], [(1, 0), (1, 1), (2, 1)], [(2, 0), (2, 1), (3, 1)]]
 
     T = [[(0, 2), (2, 2), (1, 4)], [(0, 2), (2, 2), (1, 0)], [(0, 2), (1, 4), (0, 4)], [(2, 2), (1, 4), (2, 4)], [(0,2), (1,0), (0,0)], [(2,2),(2,0),(1,0)]]
+    
+    T = [[(x, y, 0) for (x, y) in inner_list] for inner_list in T]
+    print(T)
 
+    edges = []
     for t in T:
-        plt.plot([t[0][0], t[1][0]], [t[0][1], t[1][1]], 'k--')
-        plt.plot([t[1][0], t[2][0]], [t[1][1], t[2][1]], 'k--')
-        plt.plot([t[2][0], t[0][0]], [t[2][1], t[0][1]], 'k--')
+        if (t[0], t[1]) not in edges:
+            edges.append(sorted((t[0], t[1])))
+        if (t[1], t[2]) not in edges:
+            edges.append(sorted((t[1], t[2])))
+        if (t[2], t[0]) not in edges:
+            edges.append(sorted((t[2], t[0])))
 
-    print(is_safe(T, [(0, 2), (2, 2)]))
+    Q = compute_Q(T)
 
-    contract_edge(T, [(0, 2), (2, 2)])
+    print(Q)
 
-    for t in T:
-        plt.plot([t[0][0], t[1][0]], [t[0][1], t[1][1]], 'r')
-        plt.plot([t[1][0], t[2][0]], [t[1][1], t[2][1]], 'r')
-        plt.plot([t[2][0], t[0][0]], [t[2][1], t[0][1]], 'r')
+    edges.sort(key=lambda e: error(T, Q, e))
 
-    plt.show()
+    # for t in T:
+    #     plt.plot([t[0][0], t[1][0]], [t[0][1], t[1][1]], 'k--')
+    #     plt.plot([t[1][0], t[2][0]], [t[1][1], t[2][1]], 'k--')
+    #     plt.plot([t[2][0], t[0][0]], [t[2][1], t[0][1]], 'k--')
+
+    # print(is_safe(T, [(0, 2), (2, 2)]))
+
+    # contract_edge(T, [(0, 2), (2, 2)])
+
+    # for t in T:
+    #     plt.plot([t[0][0], t[1][0]], [t[0][1], t[1][1]], 'r')
+    #     plt.plot([t[1][0], t[2][0]], [t[1][1], t[2][1]], 'r')
+    #     plt.plot([t[2][0], t[0][0]], [t[2][1], t[0][1]], 'r')
+
+    # plt.show()
 
 if __name__ == '__main__':
     main()
