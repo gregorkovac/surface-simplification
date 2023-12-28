@@ -89,7 +89,6 @@ class Hasse:
         # remove the two edges
         self.remove_simplex(e10)
         self.remove_simplex(e11)
-                
 
         # update ids around v0
         # get all neighbouring triangles

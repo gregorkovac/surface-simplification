@@ -7,7 +7,12 @@ from scipy.optimize import minimize
 class Simplify:
     def __init__(self, path):
         self.path = path
-        self.V, self.T = self.read_obj()
+
+        if path.endswith('.obj'):
+            self.V, self.T = self.read_obj()
+        elif path.endswith('.ply'):
+            self.V, self.T = self.read_ply()
+
         self.hasse = Hasse(self.T)
         self.initialize_Q()
         self.initialize_error()
@@ -34,8 +39,31 @@ class Simplify:
 
         return V, T_id
     
+    def read_ply(self):
+        with open(self.path, 'r') as f:
+            lines = f.readlines()
+
+        vertex_data_start = lines.index('end_header\n') + 1
+
+        V = []
+        T_id = []
+
+        for i in range(vertex_data_start, len(lines)):
+            line = lines[i].strip().split()
+            if len(line) == 5:
+                line = line[0:3]
+                v = np.array([float(x) for x in line], dtype=np.float32)
+                V.append(v)
+            elif line[0] == '3':
+                t = [int(x) for x in line[1:4]]
+                t = tuple(sorted(t))
+                if t not in T_id:
+                    T_id.append(t)
+
+        return V, T_id
+    
     def abs2geo(self, T):
-        return [(self.V[t[0]], self.V[t[1]], self.V[t[2]]) for t in T]
+        return [(self.V[t[0]], self.V[t[1]], self.V[t[2]]) for t in T if len(t) == 3]
     
     # check if the contraction of e doesn't change the topology type of the triangulation
     # -> check if it's safe to contract edge e
@@ -78,6 +106,7 @@ class Simplify:
         c = minimize(self.compute_E_H, initial_guess, args=(Q)).x
         #c = np.array([1,1,1])
         e.c = c
+
         return self.compute_E_H(c, Q)
     
     def initialize_error(self):
@@ -96,6 +125,10 @@ class Simplify:
         if e11 in self.heap:
             self.heap.remove(e11)
         
+        # e.c.Q = e.facets[0].Q + e.facets[1].Q - e.Q
+        # e.c.cofaces[0].Q = 
+        # self.initialize_error()
+
         # update the position of the "new" verex
         # (the vertex that was created by contracting edge e)
         # (-- Not actually new, just overwritten)

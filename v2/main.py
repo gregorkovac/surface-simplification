@@ -7,13 +7,13 @@ random.seed(0)
 np.random.seed(0)
 
 def main():
-    path = "models/cube.obj"
+    # path = "../models/ico_sphere.obj"
+    path = "../models/bun_zipper_res4.ply"
     simplify = Simplify(path)
     #simplify.heap.print_heap()
-    T = simplify.simplify()
+    T = simplify.simplify(n = 10)
 
     TRI = simplify.abs2geo(T)
-
 
     fig = plt.figure()
     ax = fig.add_subplot(111, projection='3d')
