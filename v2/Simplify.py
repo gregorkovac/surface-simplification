@@ -37,6 +37,14 @@ class Simplify:
             t = tuple(sorted(t))
             T_id.append(t)
 
+        for v in V:
+            if len(v) != 3:
+                print(v)
+
+        for t in T_id:
+            if len(t) != 3:
+                print(t)
+
         return V, T_id
     
     def read_ply(self):
@@ -115,7 +123,23 @@ class Simplify:
 
     def contract_edge(self, e):
         # contract edge e in the diagram structure
+        # print("Original edge:")
+        # for v in e.facets:
+        #     print("\t",self.V[v.id[0]])
+
         v0, v1, e10, e11 = self.hasse.contract_edge(e)
+
+        # print("v0:")
+        # print("\t",self.V[v0.id[0]])
+        # print("v1:")
+        # print("\t",self.V[v1.id[0]])
+        # print("e10:")
+        # for v in e10.facets:
+        #     print("\t",self.V[v.id[0]])
+
+        # print("e11:")
+        # for v in e11.facets:
+        #     print("\t",self.V[v.id[0]])
 
         # remove from heap the two additional edges that were removed from the diagram
         # if they haven't yet been removed
@@ -133,6 +157,9 @@ class Simplify:
         # (the vertex that was created by contracting edge e)
         # (-- Not actually new, just overwritten)
         self.V[v0.id[0]] = e.c
+
+        # print("e.c:")
+        # print("\t",e.c)
 
     # simplify the triangulation n times
     # if n is negative, simplify until the triangulation is minimal
