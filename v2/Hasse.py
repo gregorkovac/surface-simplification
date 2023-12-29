@@ -95,5 +95,5 @@ class Hasse:
         tris = set.union(*[edge.cofaces for edge in set.union(v0.cofaces)])
         for t in tris:
             t.update_id()
-        return v0, v1, e10, e11
+        return v0, v1, e00, e01, e10, e11, t0, t1
             

@@ -1,5 +1,5 @@
 from Hasse import Hasse
-from MaxHeap import MaxHeap
+from MinHeap import MinHeap
 
 import numpy as np
 from scipy.optimize import minimize
@@ -16,7 +16,7 @@ class Simplify:
         self.hasse = Hasse(self.T)
         self.initialize_Q()
         self.initialize_error()
-        self.heap = MaxHeap(self.hasse.F[1])
+        self.heap = MinHeap(self.hasse.F[1])
 
     def read_obj(self):
         with open(self.path) as f:
@@ -94,11 +94,14 @@ class Simplify:
 
     # initialize quadrics for all simplices
     def initialize_Q(self):
-        for t in self.hasse.F[2]:
+        self.update_Q(self.hasse.F[2], self.hasse.F[1], self.hasse.F[0])
+
+    def update_Q(self, ts, es, vs):
+        for t in ts:
             t.Q = self.compute_Q(t)
-        for e in self.hasse.F[1]:
+        for e in es:
             e.Q = np.sum([t.Q for t in e.cofaces], axis=0)
-        for v in self.hasse.F[0]:
+        for v in vs:
             v.Q = np.sum([t.Q for t in set.union(*[e.cofaces for e in v.cofaces])], axis=0)
 
     @staticmethod  
@@ -109,10 +112,10 @@ class Simplify:
     def compute_error(self, e):
         a, b = [self.V[v] for v in e.id]
         initial_guess = (a + b) / 2
-        Q = e.Q
-        #Q = np.sum([v.Q for v in e.facets], axis=0) - e.Q
+        
+        # TODO verify if this is correct
+        Q = np.sum([v.Q for v in e.facets], axis=0) - e.Q
         c = minimize(self.compute_E_H, initial_guess, args=(Q)).x
-        #c = np.array([1,1,1])
         e.c = c
 
         return self.compute_E_H(c, Q)
@@ -123,23 +126,7 @@ class Simplify:
 
     def contract_edge(self, e):
         # contract edge e in the diagram structure
-        # print("Original edge:")
-        # for v in e.facets:
-        #     print("\t",self.V[v.id[0]])
-
-        v0, v1, e10, e11 = self.hasse.contract_edge(e)
-
-        # print("v0:")
-        # print("\t",self.V[v0.id[0]])
-        # print("v1:")
-        # print("\t",self.V[v1.id[0]])
-        # print("e10:")
-        # for v in e10.facets:
-        #     print("\t",self.V[v.id[0]])
-
-        # print("e11:")
-        # for v in e11.facets:
-        #     print("\t",self.V[v.id[0]])
+        v0, v1, e00, e01, e10, e11, t0, t1 = self.hasse.contract_edge(e)
 
         # remove from heap the two additional edges that were removed from the diagram
         # if they haven't yet been removed
@@ -148,33 +135,41 @@ class Simplify:
             self.heap.remove(e10)
         if e11 in self.heap:
             self.heap.remove(e11)
-        
-        # e.c.Q = e.facets[0].Q + e.facets[1].Q - e.Q
-        # e.c.cofaces[0].Q = 
-        # self.initialize_error()
 
         # update the position of the "new" verex
         # (the vertex that was created by contracting edge e)
         # (-- Not actually new, just overwritten)
         self.V[v0.id[0]] = e.c
 
-        # print("e.c:")
-        # print("\t",e.c)
+        # update quadrics around the "new" vertex
+        vs = set.union(*[e.facets for e in v0.cofaces])
+        ts = set.union(*[e.cofaces for e in v0.cofaces])
+        es = set.union(*[t.facets for t in ts])        
+        self.update_Q(ts, es, vs)
+
+        # update error of edges around the "new" vertex
+        es_err = set.union(*[e.cofaces for e in vs])
+        for e in es_err:
+            e.error = self.compute_error(e)
+            self.heap.update(e)
+        
+        
+        # FOR DEBUGGING --- Updates ALL QUADRICS and ERRORS
+        #------------------------------------------------------    
+        #self.initialize_Q()
+        #self.initialize_error()
+        #self.heap = MinHeap(self.hasse.F[1])
 
     # simplify the triangulation n times
     # if n is negative, simplify until the triangulation is minimal
     # (might be useful for looking at the 'filtrarion')
-    def simplify(self, n=-1):
+    def simplify(self, n=-1, error_threshold=0.1):
         count = 0
-        while len(self.heap) > 0 and count != n:            
+        while len(self.heap) > 0 and count != n and self.heap.min() < error_threshold:           
             e = self.heap.pop()
-            #print(e.heap_index, len(self.heap), ' : F')
-
-            if self.is_safe(e):
+            # contract edge if it's safe and the edge is not a boundary edge
+            if len(e.cofaces) == 2 and self.is_safe(e):
                 self.contract_edge(e)
                 count += 1
-            else:
-                pass
-                #print("Not safe", e.heap_index, len(self.heap))
 
         return [t.id for t in self.hasse.F[2]]

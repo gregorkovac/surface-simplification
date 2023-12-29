@@ -1,8 +1,6 @@
-# implementation of max heap on error values of edges
-from typing import Any
+# implementation of min heap on error values of edges
 
-
-class MaxHeap:
+class MinHeap:
     def __init__(self, edges):
         self.heap = edges.copy()
         self.heapify()
@@ -29,13 +27,13 @@ class MaxHeap:
             i = edge.heap_index
             c1 = 2*i+1
             c2 = 2*i+2
-            # get child with max priority
-            if c2 < len(self.heap) and self.heap[c2].error > self.heap[c1].error:
+            # get child with min priority
+            if c2 < len(self.heap) and self.heap[c2].error < self.heap[c1].error:
                 c = c2
             else:
                 c = c1
             # swap if child has higher priority
-            if self.heap[c].error > edge.error:
+            if self.heap[c].error < edge.error:
                 self.heap[i], self.heap[c] = self.heap[c], self.heap[i]
                 self.heap[i].heap_index = i
                 self.heap[c].heap_index = c
@@ -56,7 +54,7 @@ class MaxHeap:
             i = edge.heap_index
             p = (i-1)//2
             # swap if parent has lower priority
-            if self.heap[p].error < edge.error:
+            if self.heap[p].error > edge.error:
                 self.heap[i], self.heap[p] = self.heap[p], self.heap[i]
                 self.heap[i].heap_index = i
                 self.heap[p].heap_index = p
@@ -76,7 +74,7 @@ class MaxHeap:
             self.sift_down(self.heap[i])
 
     #----------------------------------------------
-    # pop edge with max priority
+    # pop edge with min priority
     #----------------------------------------------
     def pop(self):
         # commented, because it is not needed in the current implementation of the algorithm
@@ -85,21 +83,12 @@ class MaxHeap:
         e = self.heap[0]
         self.remove(e)
         return e
-
-        # if heap is empty
-        if len(self.heap) == 0:
-            return None
-        # if heap is almost empty
-        if len(self.heap) == 1:
-            return self.heap.pop()
-        # swap first and last element
-        self.heap[0].heap_index, self.heap[-1].heap_index = self.heap[-1].heap_index, self.heap[0].heap_index
-        self.heap[0], self.heap[-1] = self.heap[-1], self.heap[0]
-        # remove last element
-        edge = self.heap.pop()
-        # sift down the new root
-        self.sift_down(self.heap[0])
-        return edge
+    
+    #----------------------------------------------
+    # get min value
+    #----------------------------------------------
+    def min(self):
+        return self.heap[0].error
     
     #----------------------------------------------
     # update priority of edge
