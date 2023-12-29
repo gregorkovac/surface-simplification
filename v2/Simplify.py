@@ -150,8 +150,9 @@ class Simplify:
         # update error of edges around the "new" vertex
         es_err = set.union(*[e.cofaces for e in vs])
         for e in es_err:
-            e.error = self.compute_error(e)
-            self.heap.update(e)
+            if e in self.heap:
+                e.error = self.compute_error(e)
+                self.heap.update(e)
         
         
         # FOR DEBUGGING --- Updates ALL QUADRICS and ERRORS

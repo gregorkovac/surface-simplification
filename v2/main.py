@@ -8,13 +8,13 @@ random.seed(0)
 np.random.seed(0)
 
 def main():
-    path = "../models/ico_sphere.obj"
-    #path = "../models/cube.obj"
+    #path = "../models/ico_sphere.obj"
+    path = "../models/cube.obj"
     #path = "../models/bun_zipper_res4.ply"
     # path = "../models/bun_zipper_res4.obj"
     simplify = Simplify(path)
     #simplify.heap.print_heap()
-    T = simplify.simplify(n = -1, error_threshold=0.01)
+    T = simplify.simplify(n = -1, error_threshold=10)
     print(len(T))
 
     TRI = simplify.abs2geo(T)
