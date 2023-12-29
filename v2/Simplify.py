@@ -47,6 +47,13 @@ class Simplify:
 
         return V, T_id
     
+    def export_obj(self, T, path):
+        with open(path, 'w') as f:
+            for v in self.V:
+                f.write(f'v {v[0]} {v[1]} {v[2]}\n')
+            for t in T:
+                f.write(f'f {t[0]+1} {t[1]+1} {t[2]+1}\n')
+    
     def read_ply(self):
         with open(self.path, 'r') as f:
             lines = f.readlines()
@@ -151,7 +158,15 @@ class Simplify:
         es_err = set.union(*[e.cofaces for e in vs])
         for e in es_err:
             if e in self.heap:
-                e.error = self.compute_error(e)
+                try:
+                    err = self.compute_error(e)
+                    e.error = err
+                except:
+                    print(e.id)
+                    print(e.facets)
+                    print(e.cofaces)
+                    print(e.Q)
+                    print(e.c)
                 self.heap.update(e)
         
         
@@ -169,8 +184,10 @@ class Simplify:
         while len(self.heap) > 0 and count != n and self.heap.min() < error_threshold:           
             e = self.heap.pop()
             # contract edge if it's safe and the edge is not a boundary edge
-            if len(e.cofaces) == 2 and self.is_safe(e):
+            if len(e.cofaces) == 2 and len(e.facets) == 2 and self.is_safe(e):
                 self.contract_edge(e)
                 count += 1
+
+                print("Contracted {} / {} edges".format(count, n))
 
         return [t.id for t in self.hasse.F[2]]
