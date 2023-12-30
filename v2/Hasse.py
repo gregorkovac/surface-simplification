@@ -97,3 +97,11 @@ class Hasse:
             t.update_id()
         return v0, v1, e00, e01, e10, e11, t0, t1
             
+    def get_all_simplices(self):
+        all_simplices = set()
+        for f in self.F:
+            all_simplices = all_simplices.union(f)
+            
+        all_simplices = [s.id for s in all_simplices]
+
+        return all_simplices

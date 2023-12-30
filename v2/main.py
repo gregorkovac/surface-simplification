@@ -8,16 +8,18 @@ import time
 # random.seed(0)
 # np.random.seed(0)
 
-NUM_CONTRACTIONS = 20000
+NUM_CONTRACTIONS = 450
 
 def main():
     start = time.time()
 
-    # path = "../models/ico_sphere.obj"
+    path = "../models/sphere.obj"
     # path = "../models/cube.obj"
-    # path = "../models/bun_zipper.ply"
-    path = "../output/bun_v3/bun_20000.obj"
-    # path = "../models/bun_zipper_res4.obj"
+    # path = "../models/bun_zipper_res2.ply"
+    # path = "../models/dragon_vrip_res3.ply"
+    # path = "../output/dragon_res3/dragon.obj"
+    # path = "../output/bun_v3/bun_20000.obj"
+    # path = "../models/bun_zipper_res2.obj"
     simplify = Simplify(path)
     #simplify.heap.print_heap()
     T = simplify.simplify(n = NUM_CONTRACTIONS, error_threshold=10)
@@ -27,7 +29,7 @@ def main():
 
     print("Finished in {} seconds".format(elapsed))
 
-    simplify.export_obj(T, "../output/bun_v3/bun_{}.obj".format(2*NUM_CONTRACTIONS))
+    simplify.export_obj(T, "../output/sphere/sphere_{}.obj".format(NUM_CONTRACTIONS))
 
 #     TRI = simplify.abs2geo(T)
     

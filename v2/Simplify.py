@@ -65,11 +65,13 @@ class Simplify:
 
         for i in range(vertex_data_start, len(lines)):
             line = lines[i].strip().split()
-            if len(line) == 5:
+            # if len(line) == 5:
+            if len(line) != 4:
                 line = line[0:3]
                 v = np.array([float(x) for x in line], dtype=np.float32)
                 V.append(v)
-            elif line[0] == '3':
+            # elif line[0] == '3':
+            else:
                 t = [int(x) for x in line[1:4]]
                 t = tuple(sorted(t))
                 if t not in T_id:
@@ -149,10 +151,13 @@ class Simplify:
         self.V[v0.id[0]] = e.c
 
         # update quadrics around the "new" vertex
-        vs = set.union(*[e.facets for e in v0.cofaces])
-        ts = set.union(*[e.cofaces for e in v0.cofaces])
-        es = set.union(*[t.facets for t in ts])        
-        self.update_Q(ts, es, vs)
+        try :
+            vs = set.union(*[e.facets for e in v0.cofaces])
+            ts = set.union(*[e.cofaces for e in v0.cofaces])
+            es = set.union(*[t.facets for t in ts])        
+            self.update_Q(ts, es, vs)
+        except:
+            self.initialize_Q()
 
         # update error of edges around the "new" vertex
         es_err = set.union(*[e.cofaces for e in vs])
