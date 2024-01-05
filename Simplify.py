@@ -65,13 +65,13 @@ class Simplify:
 
         for i in range(vertex_data_start, len(lines)):
             line = lines[i].strip().split()
-            # if len(line) == 5:
-            if len(line) != 4:
+            if len(line) == 5:
+            # if len(line) != 4:
                 line = line[0:3]
                 v = np.array([float(x) for x in line], dtype=np.float32)
                 V.append(v)
-            # elif line[0] == '3':
-            else:
+            elif line[0] == '3':
+            # else:
                 t = [int(x) for x in line[1:4]]
                 t = tuple(sorted(t))
                 if t not in T_id:
@@ -122,7 +122,6 @@ class Simplify:
         a, b = [self.V[v] for v in e.id]
         initial_guess = (a + b) / 2
         
-        # TODO verify if this is correct
         Q = np.sum([v.Q for v in e.facets], axis=0) - e.Q
         c = minimize(self.compute_E_H, initial_guess, args=(Q)).x
         e.c = c

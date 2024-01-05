@@ -1,9 +1,8 @@
 from Simplify import Simplify
-# from dionysus import Simplex, Filtration, data_cmp, data_dim_cmp, DynamicPersistenceChains
 import dionysus as d
 
 def main():
-    file_path = "../output/bun_full_res/bun_5000.obj"
+    file_path = "../output/bun_34500.obj"
 
     simplify = Simplify(file_path)
 
@@ -18,9 +17,6 @@ def main():
     for i, dgm in enumerate(dgms):
         num_generators = len(dgm)
         print(f"H_{i}: {num_generators}")
-        # for j, pt in enumerate(dgm):
-        #     birth, death = pt
-        #     print(f"Generator {j + 1}: Birth = {birth}, Death = {death}")
 
 if __name__ == "__main__":
     main()
