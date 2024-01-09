@@ -2,7 +2,7 @@
 ## Project description
 This is the repository for our project at the **Topological Data Analysis** course at the **Faculty of Computer and Information Science, University of Ljubljana**.
 
-This code takes a triangulated surface and simplifies it by replacing edges with vertices in such a way that it causes the least amount of deformation. This algorithm was presented in the book [[1]](#1). More details on the algorithm and the implementation can be found in the report. **TODO: Add report**
+This code takes a triangulated surface and simplifies it by replacing edges with vertices in such a way that it causes the least amount of deformation. This algorithm was presented in the book [[1]](#1). More details on the algorithm and the implementation can be found in the [report](./report/Surface_Simplification.pdf).
 
 You can see some results of our implementation in the following images. The first one represents the simplification of a sphere to the point where it becomes a tetrahedron. The second one represents the simplification of the "Stanford Bunny". The original model was taken from [The Stanford 3D Scanning Repository](https://graphics.stanford.edu/data/3Dscanrep/). Both images were rendered using Blender.
 
